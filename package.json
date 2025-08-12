@@ -1,18 +1,23 @@
 {
   "name": "mozaik",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node heartbeat.js"
+    "start": "node heartbeat.js",
+    "dev": "nodemon heartbeat.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fastify/cors": "^11.1.0",
     "axios": "^1.11.0",
     "dotenv": "^17.2.1",
     "fastify": "^5.5.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }

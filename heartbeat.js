@@ -1,23 +1,35 @@
 // heartbeat.js
 const fastify = require('fastify')({ logger: true });
 require('dotenv').config();
+const pkg = require('./package.json');
 
-const PORT = process.env.PORT || 3000;
+const startServer = async () => {
+  // CORS so we can call from web UIs later
+  await fastify.register(require('@fastify/cors'), { origin: true });
 
-fastify.get('/', async () => ({ message: 'Mozaik: hello world' }));
+  const PORT = process.env.PORT || 3000;
 
-fastify.get('/health', async () => ({
-  status: 'ok',
-  service: 'mozaik',
-  time: new Date().toISOString()
-}));
+  // basic routes
+  fastify.get('/', async () => ({ message: 'Mozaik: hello world' }));
 
-fastify.get('/pulse', async () => ({
-  pulse: Math.random().toString(36).slice(2, 8),
-  time: Date.now()
-}));
+  fastify.get('/health', async () => ({
+    status: 'ok',
+    service: 'mozaik',
+    time: new Date().toISOString()
+  }));
 
-const start = async () => {
+  fastify.get('/pulse', async () => ({
+    pulse: Math.random().toString(36).slice(2, 8),
+    time: Date.now()
+  }));
+
+  // new: version route
+  fastify.get('/version', async () => ({
+    name: pkg.name,
+    version: pkg.version,
+    node: process.version
+  }));
+
   try {
     await fastify.listen({ port: PORT, host: '0.0.0.0' });
     console.log(`🔊 Mozaik heartbeat running on http://localhost:${PORT}`);
@@ -26,4 +38,4 @@ const start = async () => {
     process.exit(1);
   }
 };
-start();
+startServer();
