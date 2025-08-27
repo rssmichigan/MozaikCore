@@ -1,2 +1,25 @@
-node_modules
+# Python cache & build
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+
+# Logs & databases
+logs/
+*.log
+src/mozaik/mozaik_queue.db
+
+# Environment / secrets
 .env
+.env.*
