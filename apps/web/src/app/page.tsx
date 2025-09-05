@@ -17,7 +17,10 @@ export default function Home() {
     <main className="max-w-2xl mx-auto p-6 space-y-4">
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Mozaik</h1>
-        <Link href="/ingest" className="underline">Ingest →</Link>
+        <nav className="flex gap-4 text-sm underline">
+          <Link href="/ingest">Ingest →</Link>
+          <Link href="/settings">Settings →</Link>
+        </nav>
       </header>
       <div className="space-y-2">
         {logs.map((t,i)=>(<div key={i} className="p-3 rounded bg-gray-100">{t}</div>))}

@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from redis import Redis
 from app.embeddings import embed_texts
+from pgvector import Vector
 from app.db import conn_cursor
 import os
 
@@ -55,7 +56,7 @@ async def ingest(inp: IngestIn):
         vec = embed_texts([text_to_embed])[0]
         with conn_cursor() as (conn, cur):
             cur.execute("INSERT INTO documents (owner_id, title, url, chunk, embedding) VALUES (%s,%s,%s,%s,%s)",
-                        ("omari", None, inp.url, text_to_embed, vec))
+                        ("omari", None, inp.url, text_to_embed, Vector(vec)))
     return {"ok": True, "queued": True}
 
 
@@ -72,6 +73,6 @@ SELECT id, title, url, chunk
 FROM documents
 ORDER BY embedding <-> %s
 LIMIT %s
-""", (vec, k))
+""", (Vector(vec), k))
         rows = cur.fetchall()
     return {"results": [{"id": r[0], "title": r[1], "url": r[2], "chunk": r[3]} for r in rows]}
