@@ -1,26 +1,43 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from redis import Redis
-from app.embeddings import embed_texts
-from pgvector import Vector
-from app.db import conn_cursor
+from typing import List, Optional
 import os
+
+# Optional Redis (fail-open if not configured)
+try:
+    from redis import Redis
+except Exception:
+    Redis = None
+
+redis = None
+REDIS_URL = os.getenv("REDIS_URL")
+if Redis and REDIS_URL:
+    try:
+        redis = Redis.from_url(REDIS_URL, decode_responses=True)
+    except Exception:
+        redis = None
+
+from app.embeddings import embed_texts
+from app.db import conn_cursor
+from pgvector import Vector
 
 app = FastAPI(title="Mozaik API", version="0.1")
 
-# CORS for local web
+# Allow local + prod origins
+origins = [
+    "http://localhost:3000",
+    "https://mozaikai.com",
+    "https://www.mozaikai.com",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Redis connection (queue)
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-redis = Redis.from_url(REDIS_URL, decode_responses=True)
 
 class ChatIn(BaseModel):
     user_id: str
@@ -28,7 +45,7 @@ class ChatIn(BaseModel):
 
 class ChatOut(BaseModel):
     text: str
-    citations: list[str] = []
+    citations: List[str] = []
 
 @app.get("/health")
 def health():
@@ -39,40 +56,47 @@ async def chat(inp: ChatIn):
     text = f"Hello, {inp.user_id}. You said: {inp.message}"
     return ChatOut(text=text, citations=[])
 
-# ---------- Ingest ----------
 class IngestIn(BaseModel):
-    url: str | None = None
-    text: str | None = None
+    url: Optional[str] = None
+    text: Optional[str] = None
 
 @app.post("/ingest")
 async def ingest(inp: IngestIn):
     if not inp.url and not inp.text:
         return {"ok": False, "error": "Provide 'url' or 'text'."}
-    job = {"type": "ingest", "url": inp.url, "text": inp.text}
-    redis.lpush("mozaik:jobs", str(job))
-    # persist text/url with embedding
+
+    # enqueue only if Redis is configured
+    if redis is not None:
+        try:
+            job = {"type": "ingest", "url": inp.url, "text": inp.text}
+            redis.lpush("mozaik:jobs", str(job))
+        except Exception:
+            pass  # fail-open if queue unavailable
+
+    # synchronous persist with embeddings
     text_to_embed = (inp.text or "")[:8000]
     if text_to_embed:
         vec = embed_texts([text_to_embed])[0]
         with conn_cursor() as (conn, cur):
-            cur.execute("INSERT INTO documents (owner_id, title, url, chunk, embedding) VALUES (%s,%s,%s,%s,%s)",
-                        ("omari", None, inp.url, text_to_embed, Vector(vec)))
-    return {"ok": True, "queued": True}
+            cur.execute(
+                "INSERT INTO documents (owner_id, title, url, chunk, embedding) VALUES (%s,%s,%s,%s,%s)",
+                ("omari", None, inp.url, text_to_embed, Vector(vec)),
+            )
 
-
-from fastapi import Query
-from typing import List, Dict
+    return {"ok": True, "queued": bool(redis)}
 
 @app.get("/search")
 async def search(q: str = Query(..., min_length=1), k: int = 5):
     vec = embed_texts([q])[0]
-    # cosine distance in pgvector: 1 - cosine_similarity
     with conn_cursor() as (conn, cur):
-        cur.execute("""
-SELECT id, title, url, chunk
-FROM documents
-ORDER BY embedding <-> %s
-LIMIT %s
-""", (Vector(vec), k))
+        cur.execute(
+            """
+            SELECT id, title, url, chunk
+            FROM documents
+            ORDER BY embedding <-> %s
+            LIMIT %s
+            """,
+            (Vector(vec), k),
+        )
         rows = cur.fetchall()
     return {"results": [{"id": r[0], "title": r[1], "url": r[2], "chunk": r[3]} for r in rows]}
