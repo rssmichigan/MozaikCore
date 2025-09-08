@@ -22,6 +22,7 @@ if Redis and REDIS_URL:
 from app.embeddings import embed_texts
 from app.db import conn_cursor
 from pgvector import Vector
+from app.db_init import ensure_schema
 
 app = FastAPI(title="Mozaik API", version="0.1")
 
@@ -103,3 +104,12 @@ async def search(q: str = Query(..., min_length=1), k: int = 5):
     return {"results": [{"id": r[0], "title": r[1], "url": r[2], "chunk": r[3]} for r in rows]}
 
 app.include_router(memory_router, prefix='/api', tags=['memory'])
+
+
+@app.on_event("startup")
+def _startup_schema():
+    try:
+        ensure_schema()
+    except Exception:
+        # fail-open: keep app running, errors will show in logs
+        pass
