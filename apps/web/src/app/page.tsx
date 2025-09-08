@@ -16,12 +16,17 @@ export default function Home() {
   return (
     <main className="max-w-2xl mx-auto p-6 space-y-4">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Mozaik</h1>
-        <nav className="flex gap-4 text-sm underline">
-          <Link href="/ingest">Ingest →</Link>
-          <Link href="/settings">Settings →</Link>
-        </nav>
-      </header>
+  <h1 className="text-2xl font-bold">Mozaik</h1>
+  <nav className="flex gap-4 text-sm underline">
+    <Link href="/ingest">Ingest →</Link>
+    <Link href="/settings">Settings →</Link>
+    <Link href="https://buy.stripe.com/7sY28k74x31M9nEftc5wI00" target="_blank">
+      <button className="border px-3 py-1 bg-blue-600 text-white rounded">
+        Subscribe →
+      </button>
+    </Link>
+  </nav>
+</header>
       <div className="space-y-2">
         {logs.map((t,i)=>(<div key={i} className="p-3 rounded bg-gray-100">{t}</div>))}
       </div>
