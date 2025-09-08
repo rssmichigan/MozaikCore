@@ -23,6 +23,7 @@ from app.embeddings import embed_texts
 from app.db import conn_cursor
 from pgvector import Vector
 from app.db_init import ensure_schema
+from app.tools.runtime import router as tools_router
 
 app = FastAPI(title="Mozaik API", version="0.1")
 
@@ -113,3 +114,5 @@ def _startup_schema():
     except Exception:
         # fail-open: keep app running, errors will show in logs
         pass
+
+app.include_router(tools_router, prefix='/api', tags=['tools'])
