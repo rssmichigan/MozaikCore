@@ -1,5 +1,5 @@
-from fastapi import FastAPI
-from app.memory import router as memory_router, Query
+from fastapi import FastAPI, Query
+from app.memory import router as memory_router
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
