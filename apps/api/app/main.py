@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI
+from app.memory import router as memory_router, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
@@ -100,3 +101,5 @@ async def search(q: str = Query(..., min_length=1), k: int = 5):
         )
         rows = cur.fetchall()
     return {"results": [{"id": r[0], "title": r[1], "url": r[2], "chunk": r[3]} for r in rows]}
+
+app.include_router(memory_router, prefix='/api', tags=['memory'])
