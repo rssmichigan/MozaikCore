@@ -21,6 +21,7 @@ export default function Home() {
           <Link href="/ingest">Ingest →</Link>
           <Link href="/semantic">Semantic →</Link>
           <Link href="/tools">Tools →</Link>
+          <Link href="/profile">Profile →</Link>
           <Link href="/settings">Settings →</Link>
         </nav>
 </header>
