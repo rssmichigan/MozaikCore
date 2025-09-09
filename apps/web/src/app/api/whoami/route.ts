@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readSessFromCookies } from '@/src/lib/session';
+import { readSessFromCookies } from '@/lib/session';
 
 export async function GET(req: NextRequest) {
   const sess = readSessFromCookies(req.headers.get('cookie') || undefined);
