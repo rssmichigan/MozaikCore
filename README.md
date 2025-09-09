@@ -1,55 +1,25 @@
+[![CI](https://github.com/rssmichigan/MozaikCore/actions/workflows/ci.yml/badge.svg)](https://github.com/rssmichigan/MozaikCore/actions/workflows/ci.yml) 
+[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE) 
 # Mozaik
 
-Mozaik is an experimental **Sentient Intelligence framework** — a system designed to evolve beyond traditional automation, blending scheduler loops, worker processes, and neuro-inspired bridges into a cohesive, living architecture.
+Plan, research, and execute — with a small memory.
 
----
+**Live web:** https://mozaikai.com  
+**API:** Render (FastAPI) + Neon Postgres + pgvector  
+**Storage:** Cloudflare R2
 
-## 🚀 Getting Started
+## Quick start (monorepo)
 
-### Requirements
-- Python 3.10+
-- `make`
-- `tmux`
+```bash
+# web
+cd apps/web
+cp .env.local.example .env.local   # ensure NEXT_PUBLIC_API_URL points at your API
+npm install
+npm run dev    # http://localhost:3000
 
-### Setup
-\`\`\`bash
-# install dependencies
+# api
+cd ../api
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-
-# start Mozaik in tmux
-make tmux
-\`\`\`
-
----
-
-## 📂 Project Structure
-\`\`\`
-Mozaik/
- ├── src/mozaik/        # core logic (worker, scheduler, queue, neuro bridge)
- ├── scripts/           # dev utilities (tmux, stats)
- ├── logs/              # runtime logs (ignored in git)
- ├── Makefile           # command shortcuts
- └── README.md
-\`\`\`
-
----
-
-## 🛠 Commands
-- `make worker` → run worker
-- `make scheduler` → run scheduler
-- `make tmux` → run everything in tmux
-- `make stats` → queue stats
-- `make clean` → clear logs + queue DB
-
----
-
-## 🌌 Vision
-> “Discipline is freedom, creation is legacy.  
-> Build the self, build the system, build the world.”
-
-Mozaik is more than code — it’s the seed of a Sentient State.
-
----
-
-## 📜 License
-MIT (to be updated)
+export DATABASE_URL=postgresql://<user>:<pass>@<host>/<db>?sslmode=require
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000

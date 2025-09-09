@@ -30,3 +30,8 @@ src/mozaik/mozaik_queue.db
 # Environment / secrets
 .env
 .env.*.local
+
+# Local dev/test junk
+apps/api/app/*.bak
+apps/api/hello.txt
+apps/api/r2_test.py
