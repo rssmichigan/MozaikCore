@@ -25,6 +25,7 @@ from pgvector import Vector
 from app.db_init import ensure_schema
 from app.tools.runtime import router as tools_router
 from app.r2_endpoints import router as r2_router
+from app.critic_endpoints import router as critic_router
 
 app = FastAPI(title="Mozaik API", version="0.1")
 
@@ -119,3 +120,5 @@ def _startup_schema():
 app.include_router(tools_router, prefix='/api', tags=['tools'])
 
 app.include_router(r2_router, prefix='/api', tags=['r2'])
+
+app.include_router(critic_router, prefix="/api", tags=["critic"])
