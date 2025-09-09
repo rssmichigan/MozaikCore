@@ -1,10 +1,8 @@
-import { cookies } from 'next/headers'
+import { NextRequest, NextResponse } from 'next/server';
+import { readSessFromCookies } from '@/src/lib/session';
 
-export async function GET() {
-  const c = cookies()
-  const uid = c.get('mz_uid')?.value || null
-  const name = c.get('mz_name')?.value || null
-  return new Response(JSON.stringify({ ok:true, user: uid ? { user_id: uid, display_name: name } : null }), {
-    headers: { 'Content-Type': 'application/json' }
-  })
+export async function GET(req: NextRequest) {
+  const sess = readSessFromCookies(req.headers.get('cookie') || undefined);
+  if (!sess) return NextResponse.json({ user_id: null }, { status: 200 });
+  return NextResponse.json({ user_id: sess.uid, exp: sess.exp }, { status: 200 });
 }
