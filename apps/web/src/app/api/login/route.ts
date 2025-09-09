@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { makeCookie } from '@/src/lib/session';
+import { makeCookie } from '@/lib/session';
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
