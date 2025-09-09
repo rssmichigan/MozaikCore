@@ -92,7 +92,7 @@ export default function ProfilePage() {
           placeholder='{"mode":"builder","theme":"dark"}'
         />
         <p className="text-xs text-gray-500">
-          Must be a valid JSON object. Examples: <code>{{}}</code>,{' '}
+          Must be a valid JSON object. Examples: <code>{'{}'}</code>,{' '}
           <code>{"{\"mode\":\"builder\",\"theme\":\"dark\"}"}</code>
         </p>
       </div>
