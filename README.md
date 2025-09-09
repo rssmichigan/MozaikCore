@@ -1,3 +1,5 @@
+[![CI](https://github.com/rssmichigan/MozaikCore/actions/workflows/ci.yml/badge.svg)](https://github.com/rssmichigan/MozaikCore/actions/workflows/ci.yml) 
+[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE) 
 # Mozaik
 
 Plan, research, and execute — with a small memory.
