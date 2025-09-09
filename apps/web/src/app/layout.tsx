@@ -1,9 +1,16 @@
+import AuthStatus from "@/components/AuthStatus"
 import type { Metadata } from 'next'
+import AuthStatus from "@/components/AuthStatus"
 
+import AuthStatus from "@/components/AuthStatus"
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://mozaikai.com'
+import AuthStatus from "@/components/AuthStatus"
 const TITLE = 'Mozaik — plan, research, and execute'
+import AuthStatus from "@/components/AuthStatus"
 const DESCRIPTION = 'Mozaik helps you plan, research, and execute — with a small memory and clean workflows.'
+import AuthStatus from "@/components/AuthStatus"
 
+import AuthStatus from "@/components/AuthStatus"
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
   title: {
@@ -43,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>{children}</body>
+        <div className="w-full border-b"><div className="max-w-3xl mx-auto p-3 flex justify-end"><AuthStatus /></div></div>
     </html>
   )
 }
