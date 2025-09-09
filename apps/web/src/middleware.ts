@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { readSessFromCookies } from '@/src/lib/session';
+import { readSessFromCookies } from '@/lib/session'
 
 const PROTECTED = new Set(['/tools', '/profile']);
 
