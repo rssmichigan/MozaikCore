@@ -1,34 +1,20 @@
-import type { NextRequest } from 'next/server'
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server';
+import { readSessFromCookies } from '@/src/lib/session';
+
+const PROTECTED = new Set(['/tools', '/profile']);
 
 export function middleware(req: NextRequest) {
-  const res = NextResponse.next()
-
-  // Adjust these as we add integrations (Stripe, analytics, etc.)
-  const csp = [
-    "default-src 'self'",
-    "base-uri 'self'",
-    "img-src 'self' data: blob: https:",
-    "style-src 'self' 'unsafe-inline' https:",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
-    "connect-src 'self' https://mozaikcore.onrender.com https:",
-    "font-src 'self' data: https:",
-    "frame-src 'self' https:",
-    "object-src 'none'",
-    "frame-ancestors 'none'",
-    "upgrade-insecure-requests",
-  ].join('; ')
-
-  res.headers.set('Content-Security-Policy', csp)
-  res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  res.headers.set('X-Frame-Options', 'DENY')
-  res.headers.set('X-Content-Type-Options', 'nosniff')
-  res.headers.set('X-DNS-Prefetch-Control', 'off')
-  res.headers.set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()')
-
-  return res
+  const { pathname } = req.nextUrl;
+  if (PROTECTED.has(pathname)) {
+    const sess = readSessFromCookies(req.headers.get('cookie') || undefined);
+    if (!sess) {
+      const url = new URL('/login', req.url);
+      return NextResponse.redirect(url);
+    }
+  }
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|icon-.*\\.png$).*)'],
-}
+  matcher: ['/tools', '/profile'],
+};
