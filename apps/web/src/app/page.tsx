@@ -22,6 +22,7 @@ export default function Home() {
           <Link href="/semantic">Semantic →</Link>
           <Link href="/tools">Tools →</Link>
           <Link href="/profile">Profile →</Link>
+          <Link href="/critic">Critic →</Link>
           <Link href="/settings">Settings →</Link>
         </nav>
 </header>
