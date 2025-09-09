@@ -20,6 +20,7 @@ export default function Home() {
   <nav className="flex gap-4 text-sm underline">
           <Link href="/ingest">Ingest →</Link>
           <Link href="/semantic">Semantic →</Link>
+          <Link href="/tools">Tools →</Link>
           <Link href="/settings">Settings →</Link>
         </nav>
 </header>
