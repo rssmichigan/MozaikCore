@@ -1,8 +1,17 @@
-import { NextResponse } from 'next/server';
-import { clearCookie } from '@/src/lib/session';
+import { NextResponse } from 'next/server'
+import { clearCookie } from '@/lib/session'
+
+function doLogout() {
+  const res = NextResponse.json({ ok: true })
+  clearCookie(res)
+  return res
+}
 
 export async function POST() {
-  const res = NextResponse.json({ ok: true });
-  res.headers.set('Set-Cookie', clearCookie());
-  return res;
+  return doLogout()
+}
+
+export async function GET() {
+  // So <a href="/api/logout">Sign out</a> also works
+  return doLogout()
 }
