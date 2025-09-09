@@ -16,7 +16,7 @@ export default function SemanticSearch() {
       if (!r.ok) throw new Error(`HTTP ${r.status}`)
       const data = await r.json()
       setResults(Array.isArray(data.results) ? data.results : [])
-    } catch (e:any) {
+    } catch (e: unknown) {
       setErr(e?.message ?? 'Search failed'); setResults([])
     } finally { setLoading(false) }
   }
