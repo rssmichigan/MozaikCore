@@ -16,10 +16,13 @@ export default function SemanticSearch() {
       if (!r.ok) throw new Error(`HTTP ${r.status}`)
       const data = await r.json()
       setResults(Array.isArray(data.results) ? data.results : [])
-    } catch (e: unknown) {
-      setErr(e?.message ?? 'Search failed'); setResults([])
-    } finally { setLoading(false) }
-  }
+   } catch (e: unknown) {
+  const msg = e instanceof Error ? e.message : 'Search failed'
+  setErr(msg)
+  setResults([])
+} finally {
+  setLoading(false)
+}
   return (
     <main className="max-w-3xl mx-auto p-6 space-y-4">
       <h1 className="text-2xl font-bold">Semantic Search</h1>
