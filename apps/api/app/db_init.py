@@ -1,6 +1,16 @@
 from app.db import conn_cursor
 
-DDL = """
+DDL = 
+CREATE TABLE IF NOT EXISTS sacrifices (
+  id BIGSERIAL PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  title TEXT NOT NULL,
+  notes TEXT,
+  happened_at timestamptz DEFAULT now(),
+  created_at timestamptz DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_sacrifices_user_time ON sacrifices(user_id, happened_at DESC);
+
 CREATE EXTENSION IF NOT EXISTS vector;
 
 CREATE TABLE IF NOT EXISTS documents (
@@ -70,4 +80,4 @@ CREATE TABLE IF NOT EXISTS memory_long (
 
 def ensure_schema():
     with conn_cursor() as (conn, cur):
-        cur.execute(DDL)
+        

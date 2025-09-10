@@ -25,6 +25,7 @@ from pgvector import Vector
 from app.db_init import ensure_schema
 from app.tools.runtime import router as tools_router
 from app.r2_endpoints import router as r2_router
+from app.sacrifice_endpoints import router as sacrifice_router
 from app.pdf_endpoints import router as pdf_router
 from app.factuality_endpoints import router as factuality_router
 from app.ask_endpoints import router as ask_router
@@ -163,3 +164,5 @@ app.include_router(ask_router, prefix='/api', tags=['ask'])
 app.include_router(factuality_router, prefix='/api', tags=['factuality'])
 
 app.include_router(pdf_router, prefix='/api', tags=['pdf'])
+
+app.include_router(sacrifice_router, prefix='/api', tags=['sacrifice'])
