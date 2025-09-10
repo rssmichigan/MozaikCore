@@ -25,6 +25,7 @@ from pgvector import Vector
 from app.db_init import ensure_schema
 from app.tools.runtime import router as tools_router
 from app.r2_endpoints import router as r2_router
+from app.memory_context_endpoints import router as memory_ctx_router
 from app.agents_endpoints import router as agents_router
 from app.ingest_endpoints import router as ingest_router
 from app.critic_endpoints import router as critic_router
@@ -151,3 +152,5 @@ def _debug_routes_agents():
 @app.get("/api/routes_dump")
 def _routes_dump():
     return {"routes": [getattr(r, "path", None) for r in app.router.routes]}
+
+app.include_router(memory_ctx_router, prefix='/api', tags=['memory'])
