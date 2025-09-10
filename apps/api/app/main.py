@@ -147,3 +147,7 @@ def _debug_routes_agents():
             print(" -", path, methods)
     except Exception as e:
         print("[routes] log fail:", e)
+
+@app.get("/api/routes_dump")
+def _routes_dump():
+    return {"routes": [getattr(r, "path", None) for r in app.router.routes]}
