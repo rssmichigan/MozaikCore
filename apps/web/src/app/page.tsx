@@ -20,10 +20,10 @@ export default function Home() {
   <nav className="flex gap-4 text-sm underline">
           <Link href="/ingest">Ingest →</Link>
           <Link href="/semantic">Semantic →</Link>
+          <Link href="/ask">Ask →</Link>
           <Link href="/tools">Tools →</Link>
           <Link href="/profile">Profile →</Link>
           <Link href="/critic">Critic →</Link>
-          <Link href="/settings">Settings →</Link>
         </nav>
 </header>
       <div className="space-y-2">
