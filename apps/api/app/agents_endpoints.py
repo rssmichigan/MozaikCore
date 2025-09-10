@@ -22,8 +22,7 @@ def agents_list():
 
 @router.post("/agents/run")
 def agents_run(inp: RunIn):
-    kw = inp.extra or {}
-    res = run_agent(inp.name, user_id=inp.user_id, query=inp.query, **kw)
+    res = run_agent(inp.name, user_id=inp.user_id, query=inp.query, **(inp.extra or {}))
     if not res.get("ok"):
         raise HTTPException(404, res.get("error", "unknown agent"))
     return res
