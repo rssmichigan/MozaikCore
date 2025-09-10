@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
+import logging
 
 from app.factuality import grounding_score, collect_memory_evidence
 import os
@@ -21,6 +22,7 @@ except Exception:
 router = APIRouter()
 
 class AskIn(BaseModel):
+    no_fact: bool = False
     user_id: str
     query: str
     depth: Optional[str] = None 
