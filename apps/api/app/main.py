@@ -128,3 +128,7 @@ app.include_router(critic_router, prefix="/api", tags=["critic"])
 app.include_router(ingest_router, prefix="/api", tags=["ingest"])
 
 app.include_router(agents_router, prefix='/api', tags=['agents'])
+
+@app.get("/api/agents/_ping")
+def _agents_ping():
+    return {"ok": True, "hint": "main.py is current and /api prefix works"}
