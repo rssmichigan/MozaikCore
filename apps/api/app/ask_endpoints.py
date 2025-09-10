@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
+from typing import List
 import logging
 
 from app.factuality import grounding_score, collect_memory_evidence
@@ -26,6 +27,7 @@ class AskIn(BaseModel):
     user_id: str
     query: str
     depth: Optional[str] = None
+    sources: List[str] = []
     force_best_effort: bool = False
     selected_action: Optional[str] = None  # 'deep' | 'force' 
 
@@ -150,4 +152,7 @@ def ask(inp: AskIn):
     if clarifying_questions is not None:
         res["clarifying_questions"] = clarifying_questions
 
+    # attach factuality
+    if "factuality" not in res:
+        res["factuality"] = {"score": score, "abstain": abstain, "details": meta}
     return res
