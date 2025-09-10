@@ -132,3 +132,18 @@ app.include_router(agents_router, prefix='/api', tags=['agents'])
 @app.get("/api/agents/_ping")
 def _agents_ping():
     return {"ok": True, "hint": "main.py is current and /api prefix works"}
+
+@app.get("/api/agents/_ping")
+def _agents_ping():
+    return {"ok": True, "hint": "main.py is current and /api prefix works"}
+
+@app.on_event("startup")
+def _debug_routes_agents():
+    try:
+        print("[routes] registered paths:")
+        for r in app.router.routes:
+            path = getattr(r, "path", None)
+            methods = getattr(r, "methods", None)
+            print(" -", path, methods)
+    except Exception as e:
+        print("[routes] log fail:", e)
