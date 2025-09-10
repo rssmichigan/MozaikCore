@@ -1,62 +1,95 @@
-from typing import List, Dict, Any, Tuple
-import math, re
-from app.embeddings import embed_texts
+import re
+from typing import List, Tuple, Dict, Any
 from app.db import conn_cursor
-from pgvector.psycopg2 import register_vector
-from psycopg2.extras import RealDictCursor
 
-def _sentences(text: str) -> List[str]:
-    parts = re.split(r'[.!?]\s+|\n+', text.strip())
-    return [p.strip() for p in parts if len(p.strip()) >= 20]
+_WORD = re.compile(r"[A-Za-z0-9']+")
 
-def _cos(a: List[float], b: List[float]) -> float:
-    num = sum(x*y for x,y in zip(a,b))
-    da = math.sqrt(sum(x*x for x in a)); db = math.sqrt(sum(y*y for y in b))
-    return 0.0 if da == 0 or db == 0 else num/(da*db)
+def _units_from_text(text: str) -> List[str]:
+    if not isinstance(text, str):
+        return []
+    # Split on sentence boundaries; trim empties
+    units = [u.strip() for u in re.split(r"[.!?]\s+", text or "") if u.strip()]
+    # If someone passes a very short answer with no punctuation, ensure at least one unit
+    return units or ([text.strip()] if (text or "").strip() else [])
 
-def collect_memory_evidence(user_id: str, query: str, k: int = 5) -> List[Dict[str,Any]]:
-    from app.embeddings import embed_texts
-    from pgvector import Vector
-    vec = embed_texts([query])[0]
-    with conn_cursor(cursor_factory=RealDictCursor) as (conn, cur):
-        register_vector(conn)
-        cur.execute("""
-            SELECT id, title, url, chunk
-            FROM memory_semantic
-            WHERE user_id = %s
-            ORDER BY embedding <-> %s
-            LIMIT %s
-        """, (user_id, vec, k))
-        rows = cur.fetchall()
-    return rows
+def _tokens(s: str) -> set:
+    if not isinstance(s, str):
+        return set()
+    return {m.group(0).lower() for m in _WORD.finditer(s)}
 
-def grounding_score(answer: str, sources: List[str], memory_rows: List[Dict[str,Any]]) -> Tuple[float, Dict[str,Any]]:
-    units = _sentences(answer)
-    if not units:
-        return 0.0, {"units": [], "evidence_used": []}
-    evidence_texts = []
-    for s in sources or []:
-        if isinstance(s, str) and s.strip():
-            evidence_texts.append(s.strip())
-    for r in memory_rows or []:
-        txt = (r.get("chunk") or "").strip()
-        if txt:
-            evidence_texts.append(txt)
+def _unit_score(unit: str, evidence_texts: List[str]) -> float:
+    # Score a unit by best token-overlap with any evidence snippet
+    utoks = _tokens(unit)
+    if not utoks:
+        return 0.0
+    best = 0.0
+    for ev in evidence_texts:
+        etoks = _tokens(ev)
+        if not etoks:
+            continue
+        inter = len(utoks & etoks)
+        denom = len(utoks)
+        if denom:
+            best = max(best, inter / denom)
+    return best
+
+def collect_memory_evidence(user_id: str, q: str, k: int = 5) -> List[str]:
+    """Pull semantic memory chunks for grounding; return list of text strings."""
+    try:
+        with conn_cursor() as (conn, cur):
+            cur.execute(
+                """
+                SELECT chunk
+                FROM memory_semantic
+                WHERE user_id = %s
+                ORDER BY created_at DESC
+                LIMIT %s
+                """,
+                (user_id, max(1, int(k))),
+            )
+            rows = cur.fetchall() or []
+    except Exception:
+        rows = []
+    # Normalize to strings
+    ev = []
+    for r in rows:
+        v = r[0] if isinstance(r, (list, tuple)) else r
+        if isinstance(v, str) and v.strip():
+            ev.append(v.strip())
+    return ev
+
+def grounding_score(answer: str, sources: List[str], memory_rows: List[str]) -> Tuple[float, Dict[str, Any]]:
+    """
+    Return (score, meta) where score in [0,1].
+    Score is mean of best-per-unit overlaps across evidence (sources + memory).
+    Fully guarded against empty inputs.
+    """
+    units = _units_from_text(answer)
+    # pick up to ~8 evidence texts (favor explicit sources if provided)
+    evidence_texts = [s for s in (sources or []) if isinstance(s, str) and s.strip()]
     if not evidence_texts:
-        return 0.0, {"units": units, "evidence_used": []}
+        evidence_texts = memory_rows or []
+    # keep size bounded
+    evidence_texts = evidence_texts[:16]
 
-    unit_vecs = embed_texts(units)
-    ev_vecs = embed_texts(evidence_texts)
+    if not units or not evidence_texts:
+        # no way to ground → return 0.0, include details
+        meta = {
+            "units": units,
+            "per_unit_best": [0.0 for _ in units],
+            "evidence_used": evidence_texts[:8],
+            "note": "no units or no evidence",
+        }
+        return 0.0, meta
 
-    best = []
-    for u, uv in zip(units, unit_vecs):
-        m = max((_cos(uv, ev) for ev in ev_vecs), default=0.0)
-        best.append(m)
+    per_unit = [_unit_score(u, evidence_texts) for u in units]
+    # safe mean
+    denom = max(1, len(per_unit))
+    score = sum(per_unit) / denom
 
-    score = sum(best)/len(best)
     meta = {
         "units": units,
-        "per_unit_best": best,
-        "evidence_used": evidence_texts[:8]  # return preview
+        "per_unit_best": per_unit,
+        "evidence_used": evidence_texts[:8],
     }
-    return score, meta
+    return float(score), meta

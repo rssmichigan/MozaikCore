@@ -1,6 +1,11 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
+
+from app.factuality import grounding_score, collect_memory_evidence
+import os
+_MIN = float(os.getenv("FACTUALITY_MIN_SCORE", "0.5"))
+
 from psycopg2.extras import Json
 from datetime import datetime, timezone
 import json
