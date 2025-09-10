@@ -107,4 +107,47 @@ def ask(inp: AskIn):
     res["answer_log_id"] = answer_log_id
     if trace_key:
         res["trace_key"] = trace_key
+    # --- factuality compute (always) ---
+    try:
+        # ensure `res["final"]` is present if we built final_text
+        if (locals().get("final_text") is not None) and not res.get("final"):
+            res["final"] = final_text
+
+        text = (res.get("final") or locals().get("final_text") or "") or ""
+        mem_rows = collect_memory_evidence(inp.user_id, (inp.query or text), 5)
+        score, meta = grounding_score(text, [], mem_rows)
+        abstain = (score is not None and score < _MIN)
+    except Exception:
+        score, meta, abstain = None, {}, None
+
+    # --- abstention UX & learning ---
+    explanation = None
+    clarifying_questions = None
+    forced = False
+
+    if abstain and not inp.force_best_effort:
+        explanation = "I can answer, but I prefer to clarify first to keep accuracy high."
+        clarifying_questions = [
+            "Is this for personal learning or professional work?",
+            "Should I run a deeper pass with external sources?",
+            "Do you want a brief outline or a detailed plan?"
+        ]
+    elif abstain and inp.force_best_effort:
+        forced = True
+        abstain = False
+        res["final"] = (text or "") + "\n\n[Note: best-effort draft; limited verification.]"
+
+    # attach factuality & UX hints to response
+    res["factuality"] = {
+        "score": score,
+        "abstain": abstain,
+        "forced": forced,
+        "warning": locals().get("warning"),
+        "details": meta
+    }
+    if explanation is not None:
+        res["explanation"] = explanation
+    if clarifying_questions is not None:
+        res["clarifying_questions"] = clarifying_questions
+
     return res
