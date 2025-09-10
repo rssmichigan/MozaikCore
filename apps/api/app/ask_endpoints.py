@@ -155,4 +155,21 @@ def ask(inp: AskIn):
     # attach factuality
     if "factuality" not in res:
         res["factuality"] = {"score": score, "abstain": abstain, "details": meta}
+    # --- user-selected action (learning) ---
+    try:
+        if inp.selected_action:
+            with conn_cursor() as (conn, cur):
+                cur.execute(
+                    """
+                    INSERT INTO memory_episodic(user_id, event_type, summary, data)
+                    VALUES (%s,%s,%s,%s)
+                    """,
+                    (inp.user_id, "user_action",
+                     f"ask: user selected {inp.selected_action}",
+                     Json({"query": inp.query, "selected_action": inp.selected_action,
+                           "has_sources": bool(inp.sources)})),
+                )
+    except Exception:
+        pass
+    
     return res
