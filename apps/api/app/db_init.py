@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS memory_semantic (
 );
 CREATE INDEX IF NOT EXISTS idx_semantic_user ON memory_semantic(user_id);
 
--- Memory stack (short/medium/long) — simple note tables for now
+-- Memory stack (short/medium/long) - simple note tables for now
 CREATE TABLE IF NOT EXISTS memory_short (
   id BIGSERIAL PRIMARY KEY,
   user_id TEXT,
