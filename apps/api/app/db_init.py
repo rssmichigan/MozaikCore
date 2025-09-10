@@ -43,6 +43,29 @@ CREATE TABLE IF NOT EXISTS memory_semantic (
   created_at timestamptz DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_semantic_user ON memory_semantic(user_id);
+
+-- Memory stack (short/medium/long) — simple note tables for now
+CREATE TABLE IF NOT EXISTS memory_short (
+  id BIGSERIAL PRIMARY KEY,
+  user_id TEXT,
+  note TEXT,
+  created_at timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS memory_medium (
+  id BIGSERIAL PRIMARY KEY,
+  user_id TEXT,
+  note TEXT,
+  created_at timestamptz DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS memory_long (
+  id BIGSERIAL PRIMARY KEY,
+  user_id TEXT,
+  note TEXT,
+  created_at timestamptz DEFAULT now()
+);
+
 """
 
 def ensure_schema():
