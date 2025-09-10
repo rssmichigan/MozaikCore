@@ -25,7 +25,9 @@ class AskIn(BaseModel):
     no_fact: bool = False
     user_id: str
     query: str
-    depth: Optional[str] = None 
+    depth: Optional[str] = None
+    force_best_effort: bool = False
+    selected_action: Optional[str] = None  # 'deep' | 'force' 
 
 @router.post("/ask")
 def ask(inp: AskIn):
