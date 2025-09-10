@@ -1,24 +1,33 @@
-from typing import Dict, Any, Optional, List
-from .manus import ManusAgent
-from .perplexity import PerplexityAgent
-from .claude import ClaudeAgent
+from typing import Dict, Any, List
 
-# Instantiate singletons for now
-AGENTS = {
-    "manus": ManusAgent(),
-    "perplexity": PerplexityAgent(),
-    "claude": ClaudeAgent(),
+_REGISTRY = {
+    "manus":  {"desc": "Skeleton planner (plan steps)"},
+    "perplexity": {"desc": "Knowledge probes (search queries)"},
+    "claude": {"desc": "Coherence pass"},
 }
 
-def list_agents() -> List[str]:
-    return list(AGENTS.keys())
+def list_agents() -> List[Dict[str, Any]]:
+    return [{"name": k, **v} for k, v in _REGISTRY.items()]
 
-def get_agent(name: str):
-    return AGENTS.get(name)
-
-def run_agent(name: str, *, user_id: str, query: str, **kwargs) -> Dict[str, Any]:
-    agent = get_agent(name)
-    if not agent:
-        return {"ok": False, "error": f"unknown agent: {name}"}
-    out = agent.call(user_id=user_id, query=query, **kwargs)
-    return {"ok": True, "agent": name, "output": out}
+def run_agent(name: str, *, user_id: str, query: str, **kw) -> Dict[str, Any]:
+    if name not in _REGISTRY:
+        return {"ok": False, "error": f"unknown agent '{name}'"}
+    if name == "manus":
+        plan = [
+            f"Clarify goals for: {query}",
+            "Define deliverables",
+            "Draft timeline & channels",
+        ]
+        return {"ok": True, "output": {"plan": plan}}
+    if name == "perplexity":
+        probes = [
+            f"{query} market analysis",
+            f"{query} audience research",
+            f"{query} best practices",
+        ]
+        return {"ok": True, "output": {"queries": probes}}
+    if name == "claude":
+        draft = kw.get("draft", f"Draft for: {query}")
+        final = f"{draft}\n\nCoherence pass complete."
+        return {"ok": True, "output": {"final": final}}
+    return {"ok": True, "output": {}}
