@@ -1,44 +1,52 @@
 <!doctype html>
 <html lang="en">
 <head>
-<link rel="icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="/site/icons/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/site/icons/favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/site/icons/apple-touch-icon.png">
-<link rel="manifest" href="/site/site.webmanifest">
-<meta name="theme-color" content="#0b0f14">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mozaik — Private, General‑Purpose AI</title>
 
-<meta property="og:title" content="Mozaik — Private, General‑Purpose AI">
-<meta property="og:description" content="Run MozaikCore locally with your data. Reasoning, planning, summarization, and cited RAG.">
-<meta property="og:image" content="/site/icons/android-chrome-512x512.png">
-<meta property="og:url" content="https://mozaikai.com/">
-<meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="/site/styles.css" />
+  <!-- Icons & manifest (relative paths for Vercel “site” root) -->
+  <link rel="icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#0b0f14">
+
+  <!-- Social -->
+  <meta property="og:title" content="Mozaik — Private, General‑Purpose AI">
+  <meta property="og:description" content="Run MozaikCore with your data. Reasoning, planning, summarization, and cited RAG.">
+  <meta property="og:image" content="icons/android-chrome-512x512.png">
+  <meta property="og:url" content="https://mozaikai.com/">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 <header class="nav">
   <div class="brand">
-    <img src="/site/assets/logo-mark.png" alt="Mozaik logo" class="logo">
+    <img src="assets/logo-mark.png" alt="Mozaik logo" class="logo">
     <span>Mozaik</span>
   </div>
-  <a class="cta" href="/docs">API Docs</a>
+  <a class="cta" href="https://api.mozaikai.com/docs">API Docs</a>
 </header>
 
 <main class="hero">
   <h1>Private, General‑Purpose AI</h1>
-  <p>MozaikCore runs locally with your data. General reasoning, planning, summarization, and RAG — without your data leaving your machine.</p>
+  <p>MozaikCore runs with your data. General reasoning, planning, summarization, and RAG — without your data leaving your control.</p>
   <div class="buttons">
-    <a class="btn" href="/docs">Open API Swagger</a>
+    <a class="btn" href="https://api.mozaikai.com/docs">Open API Swagger</a>
     <a class="btn secondary" href="#quickstart">Quickstart</a>
   </div>
-  <!-- ASK MOZAIK PANEL (inside hero) -->
-<div id="ask" class="ask-panel">
-  <form id="askForm">
-    <input id="askInput" type="text" placeholder="Ask Mozaik…" autocomplete="off" />
-    <button class="btn" type="submit">Send</button>
-  </form>
-  <pre id="askOut" class="answer"></pre>
-</div>
+
+  <!-- Ask Mozaik -->
+  <div id="ask" class="ask-panel">
+    <form id="askForm">
+      <input id="askInput" type="text" placeholder="Ask Mozaik…" autocomplete="off" />
+      <button class="btn" type="submit">Send</button>
+    </form>
+    <pre id="askOut" class="answer"></pre>
+  </div>
 </main>
 
 <section id="capabilities" class="section">
@@ -54,26 +62,23 @@
 <section id="quickstart" class="section">
   <h2>Quickstart</h2>
   <pre><code>
-ollama serve
-
-uvicorn app.main:app --reload --port 8000
-
-curl -X POST http://127.0.0.1:8000/ingest \
+# POST questions to your API
+curl -X POST https://api.mozaikai.com/complete \
   -H "Content-Type: application/json" \
-  --data-binary @data/charter.json
-
-curl -X POST http://127.0.0.1:8000/complete \
-  -H "Content-Type: application/json" \
-  -d '{"task":"auto","query":"From our charter, list principles.","use_rag":true}'</code></pre>
+  -d '{"task":"auto","query":"From our charter, list principles.","use_rag":true}'
+</code></pre>
 </section>
 
 <footer class="footer">
   <div>© <span id="y"></span> Mozaik</div>
 </footer>
 <script>document.getElementById('y').textContent=new Date().getFullYear()</script>
+
 <script>
 (function () {
-  const API_BASE = window.location.origin;
+  // Always call the production API hostname from the site
+  const API_BASE = 'https://api.mozaikai.com';
+
   const form = document.getElementById('askForm');
   const input = document.getElementById('askInput');
   const out = document.getElementById('askOut');
