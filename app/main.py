@@ -41,9 +41,8 @@ async def block_scanners(request, call_next):
 app.add_middleware(
     TrustedHostMiddleware,
     allowed_hosts=[
-        "api.mozaikai.com",   # production
-        "*.onrender.com",     # Render preview
-        "127.0.0.1", "localhost"  # local dev
+        "mozaikai.com", "www.mozaikai.com", "api.mozaikai.com",
+        "*.onrender.com", "127.0.0.1", "localhost",
     ],
 )
 # ---------- /complete ----------
