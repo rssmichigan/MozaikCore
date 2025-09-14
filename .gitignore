@@ -30,3 +30,5 @@ src/mozaik/mozaik_queue.db
 # Environment / secrets
 .env
 .env.*.local
+
+/src/generated/prisma
