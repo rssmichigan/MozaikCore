@@ -32,3 +32,12 @@ src/mozaik/mozaik_queue.db
 .env.*.local
 
 /src/generated/prisma
+.next
+node_modules
+*.log
+
+.env
+.env.local
+.env.*.local
+
+.DS_Store
