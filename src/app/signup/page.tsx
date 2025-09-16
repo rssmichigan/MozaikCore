@@ -15,13 +15,15 @@ export default function Page() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password }),
     });
-    if (r.ok) {
-      // auto sign-in happens in our SignupForm normally; here we just redirect
-      window.location.href = "/login";
-    } else {
+    if (!r.ok) {
       const j = await r.json().catch(() => ({} as any));
-      setMsg(j.error ?? "Unable to sign up");
+      const issues = j?.issues
+        ? Object.entries(j.issues).map(([k, v]) => `${k}: ${(v as string[]).join(", ")}`).join(" • ")
+        : "";
+      setMsg(j?.error ? `${j.error}${issues ? " — " + issues : ""}` : "Unable to sign up");
+      return;
     }
+    window.location.href = "/login";
   }
 
   return (

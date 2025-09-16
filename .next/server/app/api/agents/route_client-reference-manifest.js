@@ -1,0 +1,1 @@
+globalThis.__RSC_MANIFEST=(globalThis.__RSC_MANIFEST||{});globalThis.__RSC_MANIFEST["/api/agents/route"]={"moduleLoading":{"prefix":"/_next/"},"ssrModuleMapping":{},"edgeSSRModuleMapping":{},"clientModules":{},"entryCSSFiles":{"/Users/dcbentertainment/mozaik/src/":[],"/Users/dcbentertainment/mozaik/src/app/api/agents/route":[]},"rscModuleMapping":{},"edgeRscModuleMapping":{}}

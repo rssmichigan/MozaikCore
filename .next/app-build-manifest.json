@@ -1,19 +1,14 @@
 {
   "pages": {
-    "/layout": [
+    "/api/agents/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/layout.js"
+      "static/chunks/app/api/agents/route.js"
     ],
-    "/signup/page": [
+    "/api/heartbeat/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/signup/page.js"
-    ],
-    "/api/auth/[...nextauth]/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/auth/[...nextauth]/route.js"
+      "static/chunks/app/api/heartbeat/route.js"
     ]
   }
 }

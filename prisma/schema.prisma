@@ -68,3 +68,17 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+model AgentRun {
+  id        String   @id @default(cuid())
+  userId    String?
+  goal      String
+  output    String   @db.Text
+  createdAt DateTime @default(now())
+}
+model AgentRun {
+  id        String   @id @default(cuid())
+  userId    String?
+  goal      String
+  output    String   @db.Text
+  createdAt DateTime @default(now())
+}

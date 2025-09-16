@@ -1,3 +1,4 @@
+// src/auth.ts
 import type { NextAuthOptions } from "next-auth"
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
@@ -14,8 +15,12 @@ const CredentialsSchema = z.object({
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   secret: process.env.AUTH_SECRET,
-  session: { strategy: "database" },
+
+  // KEY LINE: Credentials needs JWT sessions on your setup
+  session: { strategy: "jwt" },
+
   pages: { signIn: "/login" },
+
   providers: [
     CredentialsProvider({
       name: "Email/Password",
@@ -35,4 +40,25 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
+
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.sub = user.id
+        token.email = user.email
+        token.name = user.name
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (session.user && token) {
+        session.user.email = (token.email as string) ?? session.user.email
+        session.user.name = (token.name as string) ?? session.user.name
+        // expose id (optional)
+        // @ts-ignore
+        session.user.id = token.sub as string
+      }
+      return session
+    },
+  },
 }
