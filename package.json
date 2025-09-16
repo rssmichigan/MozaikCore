@@ -8,7 +8,8 @@
     "start": "next start -p 3000",
     "dev": "next dev -p 3000",
     "build": "next build",
-    "heartbeat": "nodemon heartbeat.js"
+    "heartbeat": "nodemon heartbeat.js",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
