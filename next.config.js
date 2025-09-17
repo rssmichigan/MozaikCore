@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
-module.exports = {
-  outputFileTracingRoot: __dirname,
-  // Optional: skip lint in prod builds while we're wiring things
-  eslint: { ignoreDuringBuilds: true },
+const nextConfig = {
+  reactStrictMode: true,
+  // IMPORTANT: do NOT set `output: 'export'` — it disables API routes and server functions.
+  // If you want a bundle optimized for serverless, you can use 'standalone' instead:
+  // output: 'standalone',
 };
+module.exports = nextConfig;
