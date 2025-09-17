@@ -16,3 +16,8 @@ prisma/dev.db-journal
 .DS_Store
 
 .vercel
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
