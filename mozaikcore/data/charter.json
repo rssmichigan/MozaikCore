@@ -1,0 +1,10 @@
+{
+  "docs": [
+    {
+      "id": "charter-v1",
+      "text": "MozaikCore is a general-purpose assistant. Default skills: chat, QA, summarize, extract, classify. High-privacy mode available.",
+      "source": "Mozaik Charter",
+      "tags": ["charter","general"]
+    }
+  ]
+}

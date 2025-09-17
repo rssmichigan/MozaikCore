@@ -1,37 +1,18 @@
-# Python cache & build
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.egg-info/
-dist/
-build/
-.venv/
-venv/
-
-# Node
-node_modules/
+.next
+node_modules
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-package-lock.json
+pnpm-debug.log*
 
-# VS Code
-.vscode/
-
-# OS
-.DS_Store
-
-# Logs & databases
-logs/
-*.log
-src/mozaik/mozaik_queue.db
-
-# Environment / secrets
 .env
+.env.local
 .env.*.local
 
-# Local dev/test junk
-apps/api/app/*.bak
-apps/api/hello.txt
-apps/api/r2_test.py
+prisma/dev.db
+prisma/dev.db-journal
+
+.DS_Store
+
+.vercel
