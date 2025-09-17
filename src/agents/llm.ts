@@ -35,7 +35,7 @@ export async function llm(prompt: string): Promise<string> {
       body: JSON.stringify({
         model: "gpt-5-nano",
         input: `SYSTEM: You are a concise strategist. Return clear, structured plain text answers.\nUSER: ${prompt}`,
-        text: { format: "plain" },
+        text: { format: { type: "plain" } },   // ← correct shape
         max_output_tokens: 400
       })
     });
