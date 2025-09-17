@@ -1,14 +1,18 @@
-import { Agent, AgentInput, AgentResult } from "./types"
-import { llm } from "./llm"
+import { Agent, AgentInput, AgentResult } from "./types";
+import { llm } from "./llm";
 
 export const ResearchAgent: Agent = {
   name: "research",
   async run(input: AgentInput): Promise<AgentResult> {
-    const draft = await llm(
-      `Research summary for: ${input.goal}.
-Use user's memory: ${JSON.stringify(input.context?.memory ?? {})}.
-Return bullet points and note where sources would go.`
-    )
-    return { role: "research", content: draft }
+    const mem = JSON.stringify(input.context?.memory ?? {});
+    const prompt = [
+      `Research the following: ${input.goal}.`,
+      `Use user's memory if helpful: ${mem}.`,
+      `Return 5-10 bullet points; each bullet = key finding + 1-line rationale.`,
+      `Keep it concise and actionable.`
+    ].join("\n");
+
+    const draft = await llm(prompt);
+    return { role: "research", content: draft ?? "" };
   }
-}
+};
