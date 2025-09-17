@@ -12,7 +12,7 @@ export async function llm(prompt: string): Promise<string> {
         model: "gpt-5-nano",          // ← Nano
         messages: [{ role: "user", content: prompt }],
         temperature: 0.2,
-        max_tokens: 500               // keep cost & latency tiny
+        max_completion_tokens: 500               // keep cost & latency tiny
       }),
     })
     if (!r.ok) {
