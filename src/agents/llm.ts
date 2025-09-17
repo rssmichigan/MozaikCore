@@ -11,7 +11,6 @@ export async function llm(prompt: string): Promise<string> {
       body: JSON.stringify({
         model: "gpt-5-nano",          // ← Nano
         messages: [{ role: "user", content: prompt }],
-        temperature: 0.2,
         max_completion_tokens: 500               // keep cost & latency tiny
       }),
     })
