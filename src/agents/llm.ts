@@ -23,7 +23,7 @@ export async function llm(prompt: string): Promise<string> {
     return "";
   }
 
-  async function callResponses(model: string): Promise<string> {
+  try {
     const r = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
@@ -33,13 +33,10 @@ export async function llm(prompt: string): Promise<string> {
         "OpenAI-Beta": "responses-2024-10-22"
       },
       body: JSON.stringify({
-        model,
-        input: [
-          { role: "system", content: "You are a concise strategist. Return clear, structured plain text answers." },
-          { role: "user", content: prompt }
-        ],
-        response_format: { type: "text" },
-        max_output_tokens: 300
+        model: "gpt-5-nano",
+        input: `SYSTEM: You are a concise strategist. Return clear, structured plain text answers.\nUSER: ${prompt}`,
+        text: { format: "plain" },
+        max_output_tokens: 400
       })
     });
 
@@ -47,15 +44,11 @@ export async function llm(prompt: string): Promise<string> {
       const text = await r.text().catch(() => "");
       return `[[LLM ERROR ${r.status}]] ${text.slice(0,800)}`;
     }
+
     const j = await r.json().catch(() => ({} as any));
     const txt = extractText(j);
     return txt || `[[RAW RESP JSON]] ${JSON.stringify(j).slice(0,1800)}`;
+  } catch (e: any) {
+    return `[[LLM EXCEPTION]] ${String(e).slice(0,800)}`;
   }
-
-  // try nano, then fall back to mini if empty
-  const nano = await callResponses("gpt-5-nano");
-  if (nano && !nano.startsWith("[[RAW")) return nano;
-
-  const mini = await callResponses("gpt-5-mini");
-  return mini;
 }
