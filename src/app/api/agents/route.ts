@@ -10,7 +10,9 @@ import { runAgents } from "../../../agents/orchestrator" // ← up to src/, then
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
-  const { goal } = await req.json()
+  const body = await req.json()
+  const goal = (body?.goal as string) || ""
+  const model = (body?.model as string) || undefined
 
   if (!goal || typeof goal !== "string") {
     return NextResponse.json({ error: "Goal required" }, { status: 400 })
