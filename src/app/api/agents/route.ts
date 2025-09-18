@@ -27,9 +27,7 @@ export async function POST(req: NextRequest) {
   const key = session?.user?.email ?? ip
   const since = new Date(Date.now() - RL_WINDOW_MS)
   const recent = await prisma.rateEvent.count({ where: { key, createdAt: { gte: since } } })
-  if (recent >= RL_MAX) {
-    return NextResponse.json({ error: "Too many requests" }, { status: 429 })
-  }
+  if (recent >= RL_MAX) return NextResponse.json({ error: "Too many requests" }, { status: 429 })
   await prisma.rateEvent.create({ data: { key } })
 
   if (session?.user?.email) {
