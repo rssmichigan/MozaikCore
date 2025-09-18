@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Run router → research/build → synth
-  const out = await runAgents({ userId, goal, context: { memory } })
+  const out = await runAgents({ userId, goal, context: { memory, model } })
 
   // Persist
   await prisma.agentRun.create({

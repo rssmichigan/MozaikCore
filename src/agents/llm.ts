@@ -1,8 +1,8 @@
-export async function llm(prompt: string): Promise<string> {
+export async function llm(prompt: string, opts?: { model?: string }): Promise<string> {
   const key = process.env.OPENAI_API_KEY;
   if (!key) return `[[MOCK-LLM: missing OPENAI_API_KEY]] ${prompt.slice(0,200)}`;
 
-  const model = process.env.LLM_MODEL || "gpt-5-nano";
+  const model = opts?.model || process.env.LLM_MODEL || "gpt-5-nano";
   const openaiProject =
     process.env.OPENAI_PROJECT ||
     process.env.OPENAI_PROJECT_ID ||
@@ -37,8 +37,8 @@ export async function llm(prompt: string): Promise<string> {
         model,
         input: `SYSTEM: You are a concise strategist. Return clear, structured plain text answers.\nUSER: ${prompt}`,
         text: { format: { type: "text" } },
-        reasoning: { effort: "low" },       // ↓ cut reasoning budget
-        max_output_tokens: 900              // ↑ leave room for text
+        reasoning: { effort: "low" },
+        max_output_tokens: 900
       })
     });
 
