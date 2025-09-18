@@ -4,6 +4,7 @@ import { llm } from "./llm";
 export const BuilderAgent: Agent = {
   name: "builder",
   async run(input: AgentInput): Promise<AgentResult> {
+    const model = (input as any)?.context?.model as string | undefined;
     const prompt = [
       `Create an implementation plan for: ${input.goal}.`,
       `Return the following sections:`,
@@ -14,7 +15,7 @@ export const BuilderAgent: Agent = {
       `Use clear bullet points or numbered steps.`
     ].join("\n");
 
-    const spec = await llm(prompt);
+    const spec = await llm(prompt, { model });
     return { role: "builder", content: spec ?? "" };
   }
 };

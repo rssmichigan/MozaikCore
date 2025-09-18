@@ -5,6 +5,7 @@ export const ResearchAgent: Agent = {
   name: "research",
   async run(input: AgentInput): Promise<AgentResult> {
     const mem = JSON.stringify(input.context?.memory ?? {});
+    const model = (input as any)?.context?.model as string | undefined;
     const prompt = [
       `Research the following: ${input.goal}.`,
       `Use user's memory if helpful: ${mem}.`,
@@ -12,7 +13,7 @@ export const ResearchAgent: Agent = {
       `Keep it concise and actionable.`
     ].join("\n");
 
-    const draft = await llm(prompt);
+    const draft = await llm(prompt, { model });
     return { role: "research", content: draft ?? "" };
   }
 };

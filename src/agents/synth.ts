@@ -5,6 +5,7 @@ export const SynthAgent: Agent = {
   name: "synth",
   async run(input: AgentInput): Promise<AgentResult> {
     const memJson = JSON.stringify(input.context?.memory ?? {});
+    const model = (input as any)?.context?.model as string | undefined;
     const latest = (input.context as any)?.latest ?? "";
 
     const prompt = [
@@ -15,7 +16,7 @@ export const SynthAgent: Agent = {
       `Return:\n- 3–5 bullet summary (concise)\n- "Next 3 actions:" with numbered steps`
     ].join("\n");
 
-    const msg = await llm(prompt);
+    const msg = await llm(prompt, { model });
     return { role: "synth", content: msg ?? "" };
   }
 };
