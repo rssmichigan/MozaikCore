@@ -15,6 +15,8 @@ function estimateCost(output: string, outPerM: number) {
 
 export default function RunTask(){
   const [goal,setGoal]=useState("")
+  const [purpose,setPurpose]=useState("")
+  const [scope,setScope]=useState("")
   const [model,setModel]=useState("gpt-5-nano")
   const [out,setOut]=useState<any[]>([])
   const [err,setErr]=useState("")
