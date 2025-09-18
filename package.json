@@ -9,7 +9,8 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "heartbeat": "nodemon heartbeat.js",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "deploy": "prisma migrate deploy"
   },
   "keywords": [],
   "author": "",
