@@ -2,7 +2,6 @@ export async function llm(prompt: string): Promise<string> {
   const key = process.env.OPENAI_API_KEY;
   if (!key) return `[[MOCK-LLM: missing OPENAI_API_KEY]] ${prompt.slice(0,200)}`;
 
-  // Flip models with an env var (LLM_MODEL=gpt-5-mini to force mini)
   const model = process.env.LLM_MODEL || "gpt-5-nano";
   const openaiProject =
     process.env.OPENAI_PROJECT ||
@@ -37,8 +36,9 @@ export async function llm(prompt: string): Promise<string> {
       body: JSON.stringify({
         model,
         input: `SYSTEM: You are a concise strategist. Return clear, structured plain text answers.\nUSER: ${prompt}`,
-        text: { format: { type: "text" } },  // ← correct shape
-        max_output_tokens: 400
+        text: { format: { type: "text" } },
+        reasoning: { effort: "low" },       // ↓ cut reasoning budget
+        max_output_tokens: 900              // ↑ leave room for text
       })
     });
 
