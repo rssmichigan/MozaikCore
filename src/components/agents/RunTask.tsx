@@ -15,6 +15,8 @@ function estimateCost(output: string, outPerM: number) {
 
 export default function RunTask(){
   const [goal,setGoal]=useState("")
+  const [purpose,setPurpose]=useState("")
+  const [scope,setScope]=useState("")
   const [model,setModel]=useState("gpt-5-nano")
   const [out,setOut]=useState<any[]>([])
   const [err,setErr]=useState("")
@@ -24,7 +26,7 @@ export default function RunTask(){
     const r = await fetch("/api/agents", {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ goal, model })
+      body: JSON.stringify({ goal, model, purpose, scope })
     })
     if(!r.ok){ setErr(`Request failed (${r.status})`); return }
     const data = await r.json()
@@ -41,6 +43,8 @@ export default function RunTask(){
         <select className="border p-2 rounded" value={model} onChange={e=>setModel(e.target.value)}>
           {MODELS.map(m=>(<option key={m.value} value={m.value}>{m.label}</option>))}
         </select>
+        <input className="border p-2 rounded w-40" placeholder="purpose" value={purpose} onChange={e=>setPurpose(e.target.value)}/>
+        <input className="border p-2 rounded w-40" placeholder="scope" value={scope} onChange={e=>setScope(e.target.value)}/>
         <input
           className="border p-2 rounded flex-1"
           placeholder="Agent task (e.g., research pricing)"
