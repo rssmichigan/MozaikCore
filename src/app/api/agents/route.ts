@@ -10,7 +10,9 @@ import { runAgents } from "../../../agents/orchestrator" // ← up to src/, then
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
-  const { goal } = await req.json()
+  const body = await req.json()
+  const goal = (body?.goal as string) || ""
+  const model = (body?.model as string) || undefined
 
   if (!goal || typeof goal !== "string") {
     return NextResponse.json({ error: "Goal required" }, { status: 400 })
@@ -30,7 +32,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Run router → research/build → synth
-  const out = await runAgents({ userId, goal, context: { memory } })
+  const out = await runAgents({ userId, goal, context: { memory, model } })
 
   // Persist
   await prisma.agentRun.create({
