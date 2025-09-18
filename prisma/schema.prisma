@@ -76,3 +76,10 @@ model AgentRun {
   output    String   @db.Text
   createdAt DateTime @default(now())
 }
+
+model RateEvent {
+  id        String   @id @default(cuid())
+  key       String
+  createdAt DateTime @default(now())
+  @@index([key, createdAt])
+}
