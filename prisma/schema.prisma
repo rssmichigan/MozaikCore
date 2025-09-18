@@ -83,3 +83,10 @@ model RateEvent {
   createdAt DateTime @default(now())
   @@index([key, createdAt])
 }
+
+model RateBucket {
+  key         String
+  windowStart DateTime
+  count       Int      @default(0)
+  @@id([key, windowStart])
+}

@@ -25,10 +25,16 @@ export async function POST(req: NextRequest) {
   const RL_MAX = Number(process.env.RATE_LIMIT_MAX ?? 20)
   const ip = (req.headers.get("x-forwarded-for") ?? "anon").split(",")[0].trim()
   const key = session?.user?.email ?? ip
-  const since = new Date(Date.now() - RL_WINDOW_MS)
-  const recent = await prisma.rateEvent.count({ where: { key, createdAt: { gte: since } } })
-  if (recent >= RL_MAX) return NextResponse.json({ error: "Too many requests" }, { status: 429 })
-  await prisma.rateEvent.create({ data: { key } })
+  const windowStart = new Date(Math.floor(Date.now() / RL_WINDOW_MS) * RL_WINDOW_MS)
+
+  const bucket = await prisma.rateBucket.upsert({
+    where: { key_windowStart: { key, windowStart } },
+    update: { count: { increment: 1 } },
+    create: { key, windowStart, count: 1 }
+  })
+  if (bucket.count > RL_MAX) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 })
+  }
 
   if (session?.user?.email) {
     const user = await prisma.user.findUnique({ where: { email: session.user.email } })
@@ -42,7 +48,7 @@ export async function POST(req: NextRequest) {
   const out = await runAgents({ userId, goal, context: { memory, model } })
 
   await prisma.agentRun.create({
-    data: { userId: userId ?? undefined, goal, output: JSON.stringify(out)}
+    data: { userId: userId ?? undefined, goal, output: JSON.stringify(out) }
   })
 
   return NextResponse.json(out)
