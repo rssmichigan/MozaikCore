@@ -4,6 +4,5 @@ import { authOptions } from "@/auth"
 
 export default async function Home() {
   const session = await getServerSession(authOptions)
-  if (session?.user) redirect("/dashboard")
-  redirect("/signup")
+  redirect(session?.user ? "/agents" : "/signup")
 }
