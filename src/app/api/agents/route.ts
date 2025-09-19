@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const out = await runAgents({ userId, goal, context: { memory, model } })
+  const out = await runAgents({ userId, goal, context: { memory, model, mode } })
 
   await prisma.agentRun.create({
     data: { userId: userId ?? undefined, goal, output: JSON.stringify(out) }

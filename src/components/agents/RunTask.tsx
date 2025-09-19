@@ -21,7 +21,7 @@ export default function RunTask(){
     const r = await fetch("/api/agents",{
       method:"POST",
       headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ goal, model })
+      body: JSON.stringify({ goal, model, mode })
     })
     if(!r.ok){
       setErr(`Request failed (${r.status})`)
