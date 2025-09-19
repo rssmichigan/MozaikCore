@@ -4,9 +4,9 @@ import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 
-import { authOptions } from "../../../auth"            // ← up to src/, then auth
-import { prisma } from "../../../lib/db"              // ← up to src/, then lib/db
-import { runAgents } from "../../../agents/orchestrator" // ← up to src/, then agents/...
+import { authOptions } from "../../../auth"
+import { prisma } from "../../../lib/db"
+import { runAgents } from "../../../agents/orchestrator"
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
@@ -18,9 +18,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Goal required" }, { status: 400 })
   }
 
-  // Load user memory
   let memory: Record<string, string> = {}
-  let userId: string | undefined = undefined    // ← correct TS (not `?:`)
+  let userId: string | undefined = undefined
+
+  const RL_WINDOW_MS = Number(process.env.RATE_LIMIT_WINDOW_MS ?? 60000)
+  const RL_MAX = Number(process.env.RATE_LIMIT_MAX ?? 20)
+  const ip = (req.headers.get("x-forwarded-for") ?? "anon").split(",")[0].trim()
+  const key = session?.user?.email ?? ip
+  const windowStart = new Date(Math.floor(Date.now() / RL_WINDOW_MS) * RL_WINDOW_MS)
+
+  const bucket = await prisma.rateBucket.upsert({
+    where: { key_windowStart: { key, windowStart } },
+    update: { count: { increment: 1 } },
+    create: { key, windowStart, count: 1 }
+  })
+  if (bucket.count > RL_MAX) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 })
+  }
 
   if (session?.user?.email) {
     const user = await prisma.user.findUnique({ where: { email: session.user.email } })
@@ -31,10 +45,8 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Run router → research/build → synth
   const out = await runAgents({ userId, goal, context: { memory, model } })
 
-  // Persist
   await prisma.agentRun.create({
     data: { userId: userId ?? undefined, goal, output: JSON.stringify(out) }
   })

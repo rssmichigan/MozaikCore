@@ -1,3 +1,9 @@
-export default function Home() {
-  return <div>Mozaik is live. Go to /signup to create an account.</div>;
+import { redirect } from "next/navigation"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/auth"
+
+export default async function Home() {
+  const session = await getServerSession(authOptions)
+  if (session) redirect("/dashboard")
+  redirect("/signup")
 }
