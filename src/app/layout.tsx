@@ -1,15 +1,17 @@
-import type { ReactNode } from "react"
-import SessionProviders from "../components/providers/Session"
-import AuthButton from "../components/nav/AuthButton"
+import "./globals.css"
+import type { Metadata } from "next"
+import { ReactNode } from "react"
+
+export const metadata: Metadata = {
+  title: "Mozaik — Private Generative AI",
+  description: "Ask. Plan. Ship. Your private AI workspace with memory and agents.",
+}
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen">
-        <SessionProviders>
-          <header className="p-4 border-b"><AuthButton /></header>
-          <main className="p-6">{children}</main>
-        </SessionProviders>
+      <body>
+        <div className="container py-6">{children}</div>
       </body>
     </html>
   )
