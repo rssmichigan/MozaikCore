@@ -11,7 +11,7 @@ export default async function Home() {
 
       <section className="space-y-4">
         <RunTask />
-        <History onRerun={() => {}} />
+        <History />
       </section>
     </main>
   )
