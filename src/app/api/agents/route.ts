@@ -11,8 +11,9 @@ import { runAgents } from "../../../agents/orchestrator"
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   const body = await req.json()
-  const goal = (body?.goal as string) || ""
+  const goal  = (body?.goal  as string) || ""
   const model = (body?.model as string) || undefined
+  const mode  = (body?.mode  as string) || undefined
 
   if (!goal || typeof goal !== "string") {
     return NextResponse.json({ error: "Goal required" }, { status: 400 })
@@ -22,19 +23,22 @@ export async function POST(req: NextRequest) {
   let userId: string | undefined = undefined
 
   const RL_WINDOW_MS = Number(process.env.RATE_LIMIT_WINDOW_MS ?? 60000)
-  const RL_MAX = Number(process.env.RATE_LIMIT_MAX ?? 20)
-  const ip = (req.headers.get("x-forwarded-for") ?? "anon").split(",")[0].trim()
+  const RL_MAX       = Number(process.env.RATE_LIMIT_MAX ?? 20)
+  const ip  = (req.headers.get("x-forwarded-for") ?? "anon").split(",")[0].trim()
   const key = session?.user?.email ?? ip
   const windowStart = new Date(Math.floor(Date.now() / RL_WINDOW_MS) * RL_WINDOW_MS)
 
-  const bucket = await prisma.rateBucket.upsert({
-    where: { key_windowStart: { key, windowStart } },
-    update: { count: { increment: 1 } },
-    create: { key, windowStart, count: 1 }
-  })
-  if (bucket.count > RL_MAX) {
-    return NextResponse.json({ error: "Too many requests" }, { status: 429 })
-  }
+  try {
+    await prisma.rateBucket.upsert({
+      where: { key_windowStart: { key, windowStart } },
+      update: { count: { increment: 1 } },
+      create: { key, windowStart, count: 1 }
+    })
+    const b = await prisma.rateBucket.findUnique({ where: { key_windowStart: { key, windowStart } } })
+    if ((b?.count ?? 0) > RL_MAX) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 })
+    }
+  } catch {}
 
   if (session?.user?.email) {
     const user = await prisma.user.findUnique({ where: { email: session.user.email } })
