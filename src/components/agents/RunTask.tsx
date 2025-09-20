@@ -21,7 +21,7 @@ export default function RunTask(){
     const r = await fetch("/api/agents",{
       method:"POST",
       headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ goal, model, mode })
+      body: JSON.stringify({ goal, model, mode: mode==='auto' ? undefined : mode })
     })
     if(!r.ok){
       setErr(`Request failed (${r.status})`)
@@ -56,7 +56,7 @@ export default function RunTask(){
       <div className="flex gap-2">
         <input
           className="border rounded-xl flex-1 px-3 py-2"
-          placeholder={mode==='research'?'Ask Mozaik to research…':'Describe what to apply/execute…'}
+          placeholder={"Ask Mozaik…"}
           value={prompt}
           onChange={e=>setPrompt(e.target.value)}
           onKeyDown={e=>{ if(e.key==='Enter' && (e.metaKey||e.ctrlKey)) run() }}
