@@ -1,23 +1,40 @@
-import { Agent, AgentInput, AgentResult } from "./types";
+import { Agent, AgentInput, AgentResult } from "./types"
+import { llm } from "./llm"
+
+function heuristic(goal: string): "research" | "build" | "direct" {
+  const g = goal.toLowerCase()
+  if (g.startsWith("apply agents") || g.includes("apply agents")) return "build"
+  if (g.includes("scaffold") || g.includes("plan") || g.includes("implementation") || g.includes("how would you implement") || g.includes("build")) return "build"
+  if (g.includes("research") || g.startsWith("research") || g.includes("look up") || g.includes("compare") || g.includes("analyze")) return "research"
+  return "direct"
+}
 
 export const RouterAgent: Agent = {
   name: "router",
   async run(input: AgentInput): Promise<AgentResult> {
-    const goal = (input.goal || "").toLowerCase();
-    const mode = (input as any)?.context?.mode as string | undefined;
+    const mode = (input as any)?.context?.mode as string | undefined
+    if (mode === "research") return { role: "router", content: "", data: { route: "research" } }
+    if (mode === "agents")   return { role: "router", content: "", data: { route: "build" } }
 
-    // hard decisions first
-    if (mode === "research") return { role: "router", content: "", data: { route: "research" } };
-    if (mode === "agents")   return { role: "router", content: "", data: { route: "build" } };
+    const goal = input.goal || ""
+    let route: "research" | "build" | "direct" = heuristic(goal)
 
-    // soft heuristics
-    if (goal.startsWith("apply agents:") || goal.includes("apply agents")) {
-      return { role: "router", content: "", data: { route: "build" } };
+    if (route === "direct") {
+      try {
+        const cls = await llm(
+`Classify the user's goal into one of: research | build | direct.
+User goal: """${goal}"""
+Return only one word: research, build, or direct.`
+        )
+        const label = (cls || "").trim().toLowerCase()
+        if (label === "research") route = "research"
+        else if (label === "build") route = "build"
+        else route = "direct"
+      } catch {
+        route = heuristic(goal)
+      }
     }
-    if (goal.includes("research") || goal.startsWith("research")) {
-      return { role: "router", content: "", data: { route: "research" } };
-    }
-    // default
-    return { role: "router", content: "Direct reply route (stub)", data: { route: "reply" } };
+
+    return { role: "router", content: "", data: { route: route === "direct" ? "reply" : route } }
   }
-};
+}
