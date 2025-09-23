@@ -1,13 +1,12 @@
+'use client'
+export const dynamic = 'force-dynamic'
+
 import Link from "next/link"
 import Nav from "@/components/site/Nav"
 import Footer from "@/components/site/Footer"
 import RunTask from "@/components/agents/RunTask"
 import History from "@/components/agents/History"
-
-export const metadata = {
-  title: "Mozaik — Private Generative AI",
-  description: "Ask. Plan. Ship. Your private AI workspace with memory and agents."
-}
+import { useSession } from "next-auth/react"
 
 function Feature({ title, desc }: { title: string; desc: string }) {
   return (
@@ -18,13 +17,15 @@ function Feature({ title, desc }: { title: string; desc: string }) {
   )
 }
 
-export default async function Home() {
+export default function Home(){
+  const { status } = useSession()
+
   return (
     <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,rgba(0,0,0,0.03),transparent_60%)]">
-      <div className="max-w-5xl mx-auto px-4">
+      <div className="container">
         <Nav />
 
-        <section className="py-16 text-center space-y-6">
+        <section className="py-12 text-center space-y-6">
           <h1 className="text-4xl md:text-5xl font-semibold leading-tight">
             Private Generative AI for your business
           </h1>
@@ -33,8 +34,8 @@ export default async function Home() {
             Your data stays private. Your output ships faster.
           </p>
           <div className="flex items-center justify-center gap-3">
-            <Link href="#try" className="border px-4 py-2 rounded">Try it live</Link>
-            <Link href="/signup" className="bg-black text-white px-4 py-2 rounded">Create account</Link>
+            <Link href="#try" className="btn">Try it live</Link>
+            <Link href="/signup" className="btn btn-primary">Create account</Link>
           </div>
           <div className="text-xs opacity-60">No credit card required • 1-click sign in</div>
         </section>
@@ -51,7 +52,7 @@ export default async function Home() {
         <section id="try" className="py-14 space-y-6">
           <h2 className="text-2xl font-semibold">Try Mozaik now</h2>
           <RunTask />
-          <History />
+          {status === 'authenticated' ? <History /> : null}
         </section>
 
         <Footer />
