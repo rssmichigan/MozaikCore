@@ -10,7 +10,7 @@ const MODELS = [
 
 export default function RunTask(){
   const [model,setModel]=useState("gpt-5-nano")
-  const [mode,setMode]=useState<'research'|'agents'>('research')
+  const [mode,setMode]=useState<'research'|'agents'|'scaffold'>('research')
   const [prompt,setPrompt]=useState("")
   const [out,setOut]=useState<any[]>([])
   const [loading,setLoading]=useState(false)
