@@ -85,24 +85,13 @@ export default function RunTask(){
     return (
       <div className="card p-3 text-sm space-y-2">
         <div className="flex justify-end">
-          <button className="text-xs border px-2 py-1 rounded" onClick={()=>navigator.clipboard.writeText(display)}>Copy</button>
+          <button className="text-xs border px-2 py-1 rounded" onClick={() => navigator.clipboard.writeText(display)}>Copy</button>
         </div>
         <div className="prose prose-sm max-w-none">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{display}</ReactMarkdown>
         </div>
       </div>
-    )
-  })()
-)}
-          >Copy</button>
-        </div>
-        <div className="prose-lite">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{display}</ReactMarkdown>
-        </div>
-      </div>
     );
   })()
-)}
-    </div>
-  )
+)})
 }
