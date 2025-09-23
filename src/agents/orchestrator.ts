@@ -26,10 +26,12 @@ export async function runAgents(input: AgentInput): Promise<AgentResult[]> {
   }
 
   const direct = await llm(
-    `You are Mozaik. Provide a single, precise answer (no preamble, no follow-up lists) based strictly on the user's request.
+`You are Mozaik.
+Return a single, precise answer with no preamble.
 If the request is ambiguous, ask one clarifying question in <= 1 sentence.
 User: ${input.goal}`
   )
-  results.push({ role: "reply", content: direct ?? "" })
+  const withOffer = (direct ?? "").trim() + "\n\nNeed a deeper breakdown or sources? Reply \"elaborate\"."
+  results.push({ role: "reply", content: withOffer })
   return results
 }

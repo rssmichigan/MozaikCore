@@ -3,12 +3,15 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useState } from "react"
 
+useEffect(() => { if (sStatus !== 'authenticated') setOut([]) }, [sStatus])
+
 const MODELS = [
   { label: "Nano (cheap/fast)", value: "gpt-5-nano", outPerM: 0.40 },
   { label: "Mini (stronger)", value: "gpt-5-mini", outPerM: 0.80 },
 ]
 
 export default function RunTask(){
+  const { data: sData, status: sStatus } = useSession()
   const [model,setModel]=useState("gpt-5-nano")
   const [mode,setMode]=useState<'research'|'agents'|'scaffold'>('research')
   const [prompt,setPrompt]=useState("")
@@ -78,13 +81,19 @@ export default function RunTask(){
       {Array.isArray(out) && out.length > 0 && (
   (() => {
     const reply = out.find((r:any)=> r?.role === 'reply' || r?.role === 'synth');
-    const display = reply ? (reply.content ?? '') : (typeof out[0] === 'string' ? out[0] : JSON.stringify(out));
+    const display = reply ? (reply.content ?? '') : (typeof out[0] === 'string' ? out[0] : JSON.stringify(out, null, 2));
     return (
-      <div className="card p-4 space-y-2">
+      <div className="card p-3 text-sm space-y-2">
         <div className="flex justify-end">
-          <button
-            className="text-xs border px-2 py-1 rounded"
-            onClick={()=>navigator.clipboard.writeText(display)}
+          <button className="text-xs border px-2 py-1 rounded" onClick={()=>navigator.clipboard.writeText(display)}>Copy</button>
+        </div>
+        <div className="prose prose-sm max-w-none">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{display}</ReactMarkdown>
+        </div>
+      </div>
+    )
+  })()
+)}
           >Copy</button>
         </div>
         <div className="prose-lite">
