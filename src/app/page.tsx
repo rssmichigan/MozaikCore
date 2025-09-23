@@ -1,12 +1,9 @@
-'use client'
 export const dynamic = 'force-dynamic'
 
 import Link from "next/link"
 import Nav from "@/components/site/Nav"
 import Footer from "@/components/site/Footer"
-import RunTask from "@/components/agents/RunTask"
-import History from "@/components/agents/History"
-import { useSession } from "next-auth/react"
+import HomeClient from "./HomeClient"
 
 function Feature({ title, desc }: { title: string; desc: string }) {
   return (
@@ -18,8 +15,6 @@ function Feature({ title, desc }: { title: string; desc: string }) {
 }
 
 export default function Home(){
-  const { status } = useSession()
-
   return (
     <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,rgba(0,0,0,0.03),transparent_60%)]">
       <div className="container">
@@ -49,11 +44,7 @@ export default function Home(){
                    desc="Built-in rate limiting and DB audit trail for safe, scalable use." />
         </section>
 
-        <section id="try" className="py-14 space-y-6">
-          <h2 className="text-2xl font-semibold">Try Mozaik now</h2>
-          <RunTask />
-          {status === 'authenticated' ? <History /> : null}
-        </section>
+        <HomeClient />
 
         <Footer />
       </div>
