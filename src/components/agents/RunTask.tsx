@@ -68,12 +68,12 @@ export default function RunTask(){
 
       {err && <div className="text-sm text-red-600">{err}</div>}
 
-      {Array.isArray(out) && out.length>0 && (
-{Array.isArray(out) && out.length > 0 && (() => {
-  const reply = out.find((r:any)=> r.role === "reply" || r.role === "synth");
-  const display = reply ? (reply.content ?? "") : (typeof out[0] === "string" ? out[0] : JSON.stringify(out));
-  return (<div className="card p-3 text-sm whitespace-pre-wrap">{display}</div>)
-})()}
+      {Array.isArray(out) && out.length > 0 && (
+        (() => {
+          const reply = out.find((r:any)=> r?.role === \"reply\" || r?.role === \"synth\")
+          const display = reply ? (reply.content ?? \"\") : (typeof out[0] === \"string\" ? out[0] : JSON.stringify(out))
+          return (<div className=\"card p-3 text-sm whitespace-pre-wrap\">{display}</div>)
+        })()
       )}
     </div>
   )
