@@ -1,21 +1,23 @@
 'use client'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { useState, useEffect } from "react";const MODELS = [
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react"
+
+const MODELS = [
   { label: "Nano (cheap/fast)", value: "gpt-5-nano", outPerM: 0.40 },
   { label: "Mini (stronger)", value: "gpt-5-mini", outPerM: 0.80 },
 ]
-
 export default function RunTask(){
   const { data: sData, status: sStatus } = useSession()
-  useEffect(() => { if (sStatus !== 'authenticated') setOut([]) }, [sStatus]);
   const [model,setModel]=useState("gpt-5-nano")
   const [mode,setMode]=useState<'research'|'agents'|'scaffold'>('research')
   const [prompt,setPrompt]=useState("")
   const [out,setOut]=useState<any[]>([])
   const [loading,setLoading]=useState(false)
   const [err,setErr]=useState<string>("")
+
+  useEffect(() => { if (sStatus !== 'authenticated') setOut([]) }, [sStatus])
 
   async function run(){
     if(!prompt.trim()) return
