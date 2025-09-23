@@ -9,9 +9,8 @@ const MODELS = [
 ]
 
 export default function RunTask(){
-  useEffect(() => { if (sStatus !== 'authenticated') setOut([]) }, [sStatus])
   const { data: sData, status: sStatus } = useSession()
-  const [model,setModel]=useState("gpt-5-nano")
+  useEffect(() => { if (sStatus !== 'authenticated') setOut([]) }, [sStatus])const [model,setModel]=useState("gpt-5-nano")
   const [mode,setMode]=useState<'research'|'agents'|'scaffold'>('research')
   const [prompt,setPrompt]=useState("")
   const [out,setOut]=useState<any[]>([])
