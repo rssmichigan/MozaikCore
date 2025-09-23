@@ -1,9 +1,7 @@
 'use client'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { useState, useEffect } from "react"
-
-const MODELS = [
+import { useState, useEffect } from "react";const MODELS = [
   { label: "Nano (cheap/fast)", value: "gpt-5-nano", outPerM: 0.40 },
   { label: "Mini (stronger)", value: "gpt-5-mini", outPerM: 0.80 },
 ]
