@@ -1,6 +1,4 @@
 'use client'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import { useState } from "react"
 
 const MODELS = [
@@ -23,7 +21,7 @@ export default function RunTask(){
     const r = await fetch("/api/agents",{
       method:"POST",
       headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ goal, model, mode: mode })
+      body: JSON.stringify({ goal, model, mode: mode==='auto' ? undefined : mode })
     })
     if(!r.ok){
       setErr(`Request failed (${r.status})`)
@@ -49,11 +47,6 @@ export default function RunTask(){
             onClick={()=>setMode('agents')}
             type="button"
           >Apply agents</button>
-          <button
-            className={`px-3 py-1.5 text-sm ${mode==='scaffold'?'bg-black text-white':'bg-white'}`}
-            onClick={()=>setMode('scaffold')}
-            type="button"
-          >Scaffold</button>
         </div>
         <select className="border rounded-xl px-2 py-1.5 text-sm" value={model} onChange={e=>setModel(e.target.value)}>
           {MODELS.map(m=>(<option key={m.value} value={m.value}>{m.label}</option>))}
@@ -76,24 +69,12 @@ export default function RunTask(){
       {err && <div className="text-sm text-red-600">{err}</div>}
 
       {Array.isArray(out) && out.length > 0 && (
-  (() => {
-    const reply = out.find((r:any)=> r?.role === 'reply' || r?.role === 'synth');
-    const display = reply ? (reply.content ?? '') : (typeof out[0] === 'string' ? out[0] : JSON.stringify(out));
-    return (
-      <div className="card p-4 space-y-2">
-        <div className="flex justify-end">
-          <button
-            className="text-xs border px-2 py-1 rounded"
-            onClick={()=>navigator.clipboard.writeText(display)}
-          >Copy</button>
-        </div>
-        <div className="prose-lite">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{display}</ReactMarkdown>
-        </div>
-      </div>
-    );
-  })()
-)}
+        (() => {
+          const reply = out.find((r:any)=> r?.role === \"reply\" || r?.role === \"synth\")
+          const display = reply ? (reply.content ?? \"\") : (typeof out[0] === \"string\" ? out[0] : JSON.stringify(out))
+          return (<div className=\"card p-3 text-sm whitespace-pre-wrap\">{display}</div>)
+        })()
+      )}
     </div>
   )
 }
