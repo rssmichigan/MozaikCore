@@ -1,39 +1,37 @@
-import { AgentInput, AgentResult } from "./types";
-import { RouterAgent } from "./router";
-import { ResearchAgent } from "./research";
-import { BuilderAgent } from "./builder";
-import { SynthAgent } from "./synth";
+import { AgentInput, AgentResult } from "./types"
+import { RouterAgent } from "./router"
+import { ResearchAgent } from "./research"
+import { BuilderAgent } from "./builder"
+import { SynthAgent } from "./synth"
+import { llm } from "./llm"
 
 export async function runAgents(input: AgentInput): Promise<AgentResult[]> {
-  const results: AgentResult[] = [];
-
-  const route = (await RouterAgent.run(input)).data?.route;
-  let latest: AgentResult | null = null;
+  const results: AgentResult[] = []
+  const route = (await RouterAgent.run(input)).data?.route as "research" | "build" | "reply" | undefined
 
   if (route === "research") {
-    const r = await ResearchAgent.run(input);
-    results.push(r);
-    latest = r;
-  } else if (route === "build") {
-    const b = await BuilderAgent.run(input);
-    results.push(b);
-    latest = b;
-  } else {
-    // direct reply route (stub)
-    latest = { role: "reply", content: "Direct reply route (stub)" };
-    results.push(latest);
+    const r = await ResearchAgent.run(input)
+    results.push(r)
+    const s = await SynthAgent.run({ ...input, context: { ...(input.context ?? {}), latest: r.content } })
+    results.push(s)
+    return results
   }
 
-  // Hand the latest content to synth as material to summarize
-  const synthPromptInput: AgentInput = {
-    ...input,
-    context: {
-      ...(input.context ?? {}),
-      latest: latest?.content ?? ""
-    }
-  };
-  const s = await SynthAgent.run(synthPromptInput);
-  results.push(s);
+  if (route === "build") {
+    const b = await BuilderAgent.run(input)
+    results.push(b)
+    const s = await SynthAgent.run({ ...input, context: { ...(input.context ?? {}), latest: b.content } })
+    results.push(s)
+    return results
+  }
 
-  return results;
+  const direct = await llm(
+`You are Mozaik.
+Return a single, precise answer with no preamble.
+If the request is ambiguous, ask one clarifying question in <= 1 sentence.
+User: ${input.goal}`
+  )
+  const withOffer = (direct ?? "").trim() + "\n\nNeed a deeper breakdown or sources? Reply \"elaborate\"."
+  results.push({ role: "reply", content: withOffer })
+  return results
 }
