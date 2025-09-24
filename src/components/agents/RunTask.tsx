@@ -1,41 +1,55 @@
 'use client'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react"
+import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 
 const MODELS = [
-  { label: "Nano (cheap/fast)", value: "gpt-5-nano", outPerM: 0.40 },
-  { label: "Mini (stronger)", value: "gpt-5-mini", outPerM: 0.80 },
+  { label: 'Nano (cheap/fast)', value: 'gpt-5-nano', outPerM: 0.40 },
+  { label: 'Mini (stronger)',    value: 'gpt-5-mini', outPerM: 0.80 },
 ]
-export default function RunTask(){
-  const { data: sData, status: sStatus } = useSession()
-  const [model,setModel]=useState("gpt-5-nano")
-  const [mode,setMode]=useState<'research'|'agents'|'scaffold'>('research')
-  const [prompt,setPrompt]=useState("")
-  const [out,setOut]=useState<any[]>([])
-  const [loading,setLoading]=useState(false)
-  const [err,setErr]=useState<string>("")
 
+export default function RunTask(){
+  const { status: sStatus } = useSession()
+
+  const [model, setModel]   = useState('gpt-5-nano')
+  const [mode, setMode]     = useState<'research'|'agents'|'scaffold'>('research')
+  const [prompt, setPrompt] = useState('')
+  const [out, setOut]       = useState<any[]>([])
+  const [loading,setLoading]= useState(false)
+  const [err, setErr]       = useState<string>('')
+
+  // Clear history when logged out
   useEffect(() => { if (sStatus !== 'authenticated') setOut([]) }, [sStatus])
 
   async function run(){
-    if(!prompt.trim()) return
-    setErr(""); setLoading(true)
-    const goal = mode==='research' ? prompt : `apply agents: ${prompt}`
-    const r = await fetch("/api/agents",{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ goal, model, mode: mode })
-    })
-    if(!r.ok){
-      setErr(`Request failed (${r.status})`)
+    if (!prompt.trim()) return
+    setErr('')
+    setLoading(true)
+
+    const goal = mode === 'research' ? prompt : `apply agents: ${prompt}`
+
+    try {
+      const r = await fetch('/api/agents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ goal, model, mode }),
+      })
+
+      if (!r.ok) {
+        setErr(`Request failed (${r.status})`)
+        setOut([])
+      } else {
+        const data = await r.json()
+        setOut(Array.isArray(data) ? data : [])
+        setPrompt('') // clear bar after a successful run
+      }
+    } catch (e:any) {
+      setErr(String(e))
       setOut([])
-    }else{
-      const data = await r.json()
-      setOut(Array.isArray(data)?data:[])
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
@@ -58,42 +72,50 @@ export default function RunTask(){
             type="button"
           >Scaffold</button>
         </div>
+
         <select className="border rounded-xl px-2 py-1.5 text-sm" value={model} onChange={e=>setModel(e.target.value)}>
-          {MODELS.map(m=>(<option key={m.value} value={m.value}>{m.label}</option>))}
+          {MODELS.map(m => (<option key={m.value} value={m.value}>{m.label}</option>))}
         </select>
       </div>
 
       <div className="flex gap-2">
         <input
           className="border rounded-xl flex-1 px-3 py-2"
-          placeholder={"Ask Mozaik…"}
+          placeholder="Ask Mozaik…"
           value={prompt}
           onChange={e=>setPrompt(e.target.value)}
-          onKeyDown={e=>{ if(e.key==='Enter' && (e.metaKey||e.ctrlKey)) run() }}
+          onKeyDown={e=>{ if (e.key==='Enter' && (e.metaKey||e.ctrlKey)) run() }}
         />
         <button className="btn btn-primary" onClick={run} disabled={loading}>
-          {loading?'Running…':'Run'}
+          {loading ? 'Running…' : 'Run'}
         </button>
       </div>
 
       {err && <div className="text-sm text-red-600">{err}</div>}
 
       {Array.isArray(out) && out.length > 0 && (
-  (() => {
-    const reply = out.find((r:any)=> r?.role === 'reply' || r?.role === 'synth');
-    const display = reply ? (reply.content ?? '') : (typeof out[0] === 'string' ? out[0] : JSON.stringify(out, null, 2));
-    return (
-      <div className="card p-3 text-sm space-y-2">
-        <div className="flex justify-end">
-          <button className="text-xs border px-2 py-1 rounded" onClick={() => navigator.clipboard.writeText(display)}>Copy</button>
-        </div>
-        <div className="prose prose-sm max-w-none">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{display}</ReactMarkdown>
-        </div>
-      </div>
-    );
-  })()
-)}
+        (() => {
+          const reply   = out.find((r:any)=> r?.role === 'reply' || r?.role === 'synth');
+          const display = reply ? (reply.content ?? '') :
+                           (typeof out[0] === 'string' ? out[0] : JSON.stringify(out, null, 2));
+
+          return (
+            <div className="card p-3 text-sm space-y-2">
+              <div className="flex justify-end">
+                <button
+                  className="text-xs border px-2 py-1 rounded"
+                  onClick={() => navigator.clipboard.writeText(display)}
+                >
+                  Copy
+                </button>
+              </div>
+              <div className="prose prose-sm max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{display}</ReactMarkdown>
+              </div>
+            </div>
+          );
+        })()
+      )}
     </div>
   )
 }
