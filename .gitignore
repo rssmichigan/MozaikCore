@@ -21,3 +21,6 @@ prisma/dev.db-journal
 __pycache__/
 *.pyc
 *.pyo
+
+# local backups
+*.bak
